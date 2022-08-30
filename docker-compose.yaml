@@ -16,8 +16,6 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
-      - ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:9092
-      - LISTENERS=PLAINTEXT://:9092
   connect:
     container_name: connect
     image: debezium/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
@@ -34,6 +32,7 @@ services:
       - oracle-db-source
       - oracle-db-target
     volumes:
+      - ${PROJECT_PATH}/debezium-with-oracle-jdbc/xstreams.jar /kafka/libs
       - ${PROJECT_PATH}/debezium-with-oracle-jdbc/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
@@ -44,7 +43,6 @@ services:
       - LD_LIBRARY_PATH=/instant_client
   oracle-db-source:
     container_name: oracle-db-source
-    hostname: oracle-db-source
     image: oracleinanutshell/oracle-xe-11g:latest
     ports:
       - 1521:1521
@@ -52,11 +50,10 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-init:/docker-entrypoint-initdb.d
     environment:
-      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_ALLOW_REMOTE=YES
       - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
   oracle-db-target:
     container_name: oracle-db-target
-    hostname: oracle-db-target
     image: oracleinanutshell/oracle-xe-11g:latest
     ports:
       - 3042:1521
@@ -64,5 +61,5 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-target-init:/docker-entrypoint-initdb.d
     environment:
-      - ORACLE_ALLOW_REMOTE=true
+      - ORACLE_ALLOW_REMOTE=YES
       - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe

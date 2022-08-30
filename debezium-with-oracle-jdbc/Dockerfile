@@ -11,11 +11,18 @@ RUN mkdir $KAFKA_CONNECT_JDBC_DIR && cd $KAFKA_CONNECT_JDBC_DIR &&\
 	curl -sO https://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/$KAFKA_JDBC_VERSION/kafka-connect-jdbc-$KAFKA_JDBC_VERSION.jar &&\
     cp $DEBEZIUM_CONNECTOR_ORACLE_DIR/* .
 
+COPY config.yml /kafka/etc/config.yml
+COPY connect-distributed.properties /kafka/config/connect-distributed.properties
+
+RUN mkdir /kafka/connect/multiple-field-timestamp-converter/
+COPY multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar /kafka/connect/multiple-field-timestamp-converter/multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar
+
 USER root
 RUN microdnf -y install libaio && microdnf clean all
 
 USER kafka
-
 # Deploy Oracle client and drivers
+
 COPY oracle_instantclient/* $INSTANT_CLIENT_DIR
+COPY oracle_instantclient/xstreams.jar /kafka/libs
 COPY oracle_instantclient/ojdbc8.jar /kafka/libs

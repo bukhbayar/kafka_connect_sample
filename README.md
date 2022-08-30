@@ -3,39 +3,10 @@
 You must download the [Oracle instant client for Linux](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
 and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
-```shell
-                   +-------------+
-                   |             |
-                   |   Oracle    |
-                   |             |
-                   +-------------+
-                          +
-                          |
-                          |
-                          |
-                          v
-          +----------------------------------+
-          |                                  |
-          |           Kafka Connect          |
-          |  (Debezium, JDBC connectors)     |
-          |                                  |
-          +----------------------------------+
-                           +
-                           |
-              _____________|_____________
-             |                           |
-             v                           v
-    +-----------------+          +-----------------+
-    |                 |   ~~~~   |      TARGET     |
-    |  TARGET ORACLE  |   ~~~~   |    POSTGRESQL   |
-    |                 |   ~~~~   |                 |
-    +-----------------+          +-----------------+
-```
-
 - Start the topology as defined in <https://debezium.io/docs/tutorial/>
 
 ```shell
-export DEBEZIUM_VERSION=1.7
+export DEBEZIUM_VERSION=1.8.0.Final
 export PROJECT_PATH=$(pwd -P)
 docker-compose -f docker-compose.yaml up --build --no-start
 docker-compose -f docker-compose.yaml start
@@ -45,6 +16,10 @@ docker-compose -f docker-compose.yaml start
 
 ```shell
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-sink-customers.json
+```
+
+```shell
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/jdbc-sink-customers/config/ -d @register-oracle-sink-customers.json
 ```
 
 - Start Postgres sink connector for Customers table.
@@ -57,6 +32,10 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 ```shell
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-source-oracle.json
+```
+
+```shell
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-source-oracle.json
 ```
 
 - Connect to Source Oracle DB
@@ -86,7 +65,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 --SOURCE DB
 SELECT * FROM INVENTORY.CUSTOMERS c ;
 
-UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = CASE WHEN c.FIRST_NAME = 'Anne' THEN 'Marie Anne' ELSE 'Anne' END 
+UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = CASE WHEN c.FIRST_NAME = 'Anne' THEN 'Marie Anne' ELSE 'Anne' END
 WHERE c.id = 1004;
 
 UPDATE INVENTORY.CUSTOMERS c SET c.EMAIL = c.EMAIL || '.tr';
@@ -141,11 +120,19 @@ curl -i -X GET  http://localhost:8083/connectors
        column -s : -t| sed 's/\"//g'| sort
     ```
 
+    - Status of connector
+
+    ```shell
+    curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
+    #OR
+    curl -i -X GET  http://localhost:8083/connectors/jdbc-sink-customers/status
+    ```
+
   - Restart a connector
 
     ```shell
     curl -i -X POST  http://localhost:8083/connectors/inventory-source-connector/restart
-    #OR 
+    #OR
     curl -i -X POST  http://localhost:8083/connectors/jdbc-sink-customers/restart
     ```
 
@@ -153,14 +140,14 @@ curl -i -X GET  http://localhost:8083/connectors
 
     ```shell
     curl -i -X DELETE  http://localhost:8083/connectors/inventory-source-connector
-    #OR 
+    #OR
     curl -i -X DELETE  http://localhost:8083/connectors/jdbc-sink-customers
     ```
 
 - Stop the topology
 
 ```shell
-export DEBEZIUM_VERSION=1.7
+export DEBEZIUM_VERSION=1.8.0.Final
 export PROJECT_PATH=$(pwd -P)
 docker-compose -f docker-compose.yaml down
 ```

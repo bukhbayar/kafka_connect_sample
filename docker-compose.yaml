@@ -23,7 +23,6 @@ services:
       context: debezium-with-oracle-jdbc
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
-        JMX_AGENT_VERSION: 0.15.0
     ports:
      - 5005:5005
      - 1976:1976
@@ -32,9 +31,7 @@ services:
      - kafka
      - oracle-db-source
      - oracle-db-target
-     - postgres
     volumes:
-     - ${PROJECT_PATH}/debezium-with-oracle-jdbc/xstreams.jar /kafka/libs
      - ${PROJECT_PATH}/debezium-with-oracle-jdbc/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
@@ -43,9 +40,6 @@ services:
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
      - LD_LIBRARY_PATH=/instant_client
-     - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
-     - JMXHOST=localhost
-     - JMXPORT=1976
   oracle-db-source:
     container_name: oracle-db-source
     hostname: oracle-db-source
@@ -70,12 +64,3 @@ services:
     environment:
     - ORACLE_ALLOW_REMOTE=true
     - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
-  postgres:
-    container_name: postgres
-    image: postgres
-    ports:
-     - 5432:5432
-    environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=postgres
-     - POSTGRES_DB=inventory

@@ -9,7 +9,6 @@
         "database.user" : "c##logminer",
         "database.password" : "dbz",
         "database.dbname" : "XE",
-        "database.out.server.name":"dbzxout",
         "database.oracle.version": "11",
         "database.history.kafka.bootstrap.servers" : "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",

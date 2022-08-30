@@ -8,8 +8,7 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 ```shell
 export DEBEZIUM_VERSION=1.8.0.Final
 export PROJECT_PATH=$(pwd -P)
-docker-compose -f docker-compose.yaml up --build --no-start
-docker-compose -f docker-compose.yaml start
+docker-compose -f docker-compose.yaml up --build -d
 ```
 
 - Start Oracle sink connector for Customers table.

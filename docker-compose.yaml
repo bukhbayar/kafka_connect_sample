@@ -18,11 +18,11 @@ services:
       - ZOOKEEPER_CONNECT=zookeeper:2181
       - ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:9092
       - LISTENERS=PLAINTEXT://:9092
-  connect:
-    container_name: connect
-    image: debezium/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
+  consumer:
+    container_name: consumer
+    image: debezium/kafka-connect-consumer:${DEBEZIUM_VERSION}
     build:
-      context: debezium-with-oracle-jdbc
+      context: kafka-connect-consumer
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
@@ -34,7 +34,31 @@ services:
       - oracle-db-source
       - oracle-db-target
     volumes:
-      - ${PROJECT_PATH}/debezium-with-oracle-jdbc/oracle_instantclient/ojdbc8.jar /kafka/libs
+      - ${PROJECT_PATH}/kafka-connect-consumer/oracle_instantclient/ojdbc8.jar /kafka/libs
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - LD_LIBRARY_PATH=/instant_client
+  producer:
+    container_name: producer
+    image: debezium/kafka-connect-producer:${DEBEZIUM_VERSION}
+    build:
+      context: kafka-connect-producer
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    ports:
+      - 5005:5005
+      - 1976:1976
+      - 8083:8083
+    links:
+      - kafka
+      - oracle-db-source
+      - oracle-db-target
+    volumes:
+      - ${PROJECT_PATH}/kafka-connect-producer/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1

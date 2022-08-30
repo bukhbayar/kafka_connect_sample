@@ -52,7 +52,7 @@ services:
     ports:
       - 5005:5005
       - 1976:1976
-      - 8083:8083
+      - 8084:8083
     links:
       - kafka
       - oracle-db-source

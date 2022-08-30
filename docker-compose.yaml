@@ -50,8 +50,8 @@ services:
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
-      - 5005:5005
-      - 1976:1976
+      - 5006:5005
+      - 1977:1976
       - 8084:8083
     links:
       - kafka

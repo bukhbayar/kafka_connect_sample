@@ -1,7 +1,7 @@
 version: '3.4'
 x-common-variables: &common-variables
-  DEBEZIUM_VERSION: 1.9.5.Final
-  PROJECT_PATH: ./
+  DEBEZIUM_VERSION: '1.9.5.Final'
+  PROJECT_PATH: './'
 services:
   zookeeper:
     container_name: zookeeper

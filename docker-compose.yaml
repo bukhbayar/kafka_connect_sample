@@ -1,7 +1,4 @@
 version: '3.4'
-x-common-variables: &common-variables
-  DEBEZIUM_VERSION: 1.9.5.Final
-  PROJECT_PATH: ./
 services:
   zookeeper:
     container_name: zookeeper
@@ -24,7 +21,7 @@ services:
   producer:
     container_name: producer-container
     hostname: connect-producer
-    image: debezium/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
+    image: debezium/producer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
       context: docker-producer
       args:
@@ -49,7 +46,7 @@ services:
   consumer:
     container_name: consumer-container
     hostname: connect-consumer
-    image: confluent/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
+    image: confluent/consumer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
       context: docker-consumer
       args:

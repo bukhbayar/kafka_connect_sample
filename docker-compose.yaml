@@ -11,6 +11,8 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+    environment:
+      <<: *common-variables
   kafka:
     container_name: kafka
     hostname: kafka

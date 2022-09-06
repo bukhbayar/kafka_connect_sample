@@ -1,4 +1,7 @@
 version: '3.4'
+x-common-variables: &common-variables
+  DEBEZIUM_VERSION: 1.9.5.Final
+  PROJECT_PATH: ./
 services:
   zookeeper:
     container_name: zookeeper
@@ -17,7 +20,8 @@ services:
     links:
       - zookeeper
     environment:
-      - ZOOKEEPER_CONNECT=zookeeper:2181
+      <<: *common-variables
+      ZOOKEEPER_CONNECT: zookeeper:2181
   producer:
     container_name: producer-container
     hostname: connect-producer
@@ -37,12 +41,13 @@ services:
     volumes:
       - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses
-      - LD_LIBRARY_PATH=/instant_client
+      <<: *common-variables
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      LD_LIBRARY_PATH: /instant_client
   consumer:
     container_name: consumer-container
     hostname: connect-consumer
@@ -62,12 +67,13 @@ services:
     volumes:
       - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses
-      - LD_LIBRARY_PATH=/instant_client
+      <<: *common-variables
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+      LD_LIBRARY_PATH: /instant_client
   oracle-db-source:
     container_name: oracle-db-source
     hostname: oracle-db-source
@@ -78,8 +84,9 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-init:/docker-entrypoint-initdb.d
     environment:
-      - ORACLE_ALLOW_REMOTE=YES
-      - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+      <<: *common-variables
+      ORACLE_ALLOW_REMOTE: YES
+      ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe
   oracle-db-target:
     container_name: oracle-db-target
     hostname: oracle-db-target
@@ -90,5 +97,6 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-target-init:/docker-entrypoint-initdb.d
     environment:
-      - ORACLE_ALLOW_REMOTE=YES
-      - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+      <<: *common-variables
+      ORACLE_ALLOW_REMOTE: YES
+      ORACLE_HOME: /u01/app/oracle/product/11.2.0/xe

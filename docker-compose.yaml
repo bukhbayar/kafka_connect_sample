@@ -1,7 +1,5 @@
 version: '3.4'
-x-common-variables: &common-variables
-  DEBEZIUM_VERSION: '1.9.5.Final'
-  PROJECT_PATH: './'
+
 services:
   zookeeper:
     container_name: zookeeper
@@ -11,8 +9,6 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
-    environment:
-      <<: *common-variables
   kafka:
     container_name: kafka
     hostname: kafka
@@ -22,8 +18,7 @@ services:
     links:
       - zookeeper
     environment:
-      <<: *common-variables
-      ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      - ZOOKEEPER_CONNECT=zookeeper:2181
   producer:
     container_name: producer-container
     hostname: connect-producer
@@ -31,7 +26,6 @@ services:
     build:
       context: docker-producer
       args:
-        <<: *common-variables
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
       - 5005:5005
@@ -44,13 +38,12 @@ services:
     volumes:
       - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
-      <<: *common-variables
-      BOOTSTRAP_SERVERS: 'kafka:9092'
-      GROUP_ID: '1'
-      CONFIG_STORAGE_TOPIC: 'my_connect_configs'
-      OFFSET_STORAGE_TOPIC: 'my_connect_offsets'
-      STATUS_STORAGE_TOPIC: 'my_connect_statuses'
-      LD_LIBRARY_PATH: '/instant_client'
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - LD_LIBRARY_PATH=/instant_client
   consumer:
     container_name: consumer-container
     hostname: connect-consumer
@@ -58,7 +51,6 @@ services:
     build:
       context: docker-consumer
       args:
-        <<: *common-variables
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
       - 15005:5005
@@ -71,13 +63,12 @@ services:
     volumes:
       - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
-      <<: *common-variables
-      BOOTSTRAP_SERVERS: 'kafka:9092'
-      GROUP_ID: '1'
-      CONFIG_STORAGE_TOPIC: 'my_connect_configs'
-      OFFSET_STORAGE_TOPIC: 'my_connect_offsets'
-      STATUS_STORAGE_TOPIC: 'my_connect_statuses'
-      LD_LIBRARY_PATH: '/instant_client'
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - LD_LIBRARY_PATH=/instant_client
   oracle-db-source:
     container_name: oracle-db-source
     hostname: oracle-db-source
@@ -88,9 +79,8 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-init:/docker-entrypoint-initdb.d
     environment:
-      <<: *common-variables
-      ORACLE_ALLOW_REMOTE: 'YES'
-      ORACLE_HOME: '/u01/app/oracle/product/11.2.0/xe'
+      - ORACLE_ALLOW_REMOTE=YES
+      - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
   oracle-db-target:
     container_name: oracle-db-target
     hostname: oracle-db-target
@@ -101,6 +91,5 @@ services:
     volumes:
       - ${PROJECT_PATH}/ora-target-init:/docker-entrypoint-initdb.d
     environment:
-      <<: *common-variables
-      ORACLE_ALLOW_REMOTE: 'YES'
-      ORACLE_HOME: '/u01/app/oracle/product/11.2.0/xe'
+      - ORACLE_ALLOW_REMOTE=YES
+      - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe

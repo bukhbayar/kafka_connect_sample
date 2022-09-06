@@ -142,7 +142,5 @@ curl -i -X GET  http://localhost:8083/connectors
 - Stop the topology
 
 ```shell
-export DEBEZIUM_VERSION=1.8.0.Final
-export PROJECT_PATH=$(pwd -P)
 docker-compose -f docker-compose.yaml down
 ```

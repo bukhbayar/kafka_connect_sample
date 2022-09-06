@@ -6,8 +6,6 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 - Start the topology as defined in <https://debezium.io/docs/tutorial/>
 
 ```shell
-export DEBEZIUM_VERSION=1.8.0.Final
-export PROJECT_PATH=$(pwd -P)
 docker-compose -f docker-compose.yaml up --build -d
 ```
 
@@ -91,8 +89,6 @@ docker exec -it kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 -
 - Inpsect a kafka topic
 
 ```shell
-export DEBEZIUM_VERSION=1.7
-export PROJECT_PATH=$(pwd -P)
 docker-compose -f docker-compose.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \

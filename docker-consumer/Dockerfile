@@ -1,15 +1,24 @@
-FROM confluentinc/cp-kafka-connect-base:7.2.0
+ARG DEBEZIUM_VERSION
+FROM debezium/connect:$DEBEZIUM_VERSION
+ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc \
+    INSTANT_CLIENT_DIR=/instant_client/ \
+    DEBEZIUM_CONNECTOR_ORACLE_DIR=$KAFKA_CONNECT_PLUGINS_DIR/debezium-connector-oracle
 
-ENV LB_LIBRARY_PATH=/usr/share/java/instant_client/
+ARG KAFKA_JDBC_VERSION=10.2.0
 
-RUN confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:10.5.2
+# Deploy Kafka Connect JDBC
+RUN mkdir $KAFKA_CONNECT_JDBC_DIR && cd $KAFKA_CONNECT_JDBC_DIR &&\
+	curl -sO https://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/$KAFKA_JDBC_VERSION/kafka-connect-jdbc-$KAFKA_JDBC_VERSION.jar &&\
+    cp $DEBEZIUM_CONNECTOR_ORACLE_DIR/* .
 
-COPY oracle_instantclient/* /usr/share/java/instant_client/
-COPY oracle_instantclient/ojdbc8.jar /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
-
-RUN curl "https://oss.sonatype.org/service/local/repositories/snapshots/content/io/debezium/debezium-connector-oracle/1.9.0-SNAPSHOT/debezium-connector-oracle-1.9.0-20220220.180146-340-plugin.tar.gz" | \
-    tar xvfz - --directory /usr/share/java/
+RUN mkdir /kafka/connect/multiple-field-timestamp-converter/
+COPY multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar /kafka/connect/multiple-field-timestamp-converter/multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar
 
 USER root
+RUN microdnf -y install libaio && microdnf clean all
 
-RUN yum -y update && yum -y install libaio
+USER kafka
+
+# Deploy Oracle client and drivers
+COPY oracle_instantclient/* $INSTANT_CLIENT_DIR
+COPY oracle_instantclient/ojdbc8.jar /kafka/libs

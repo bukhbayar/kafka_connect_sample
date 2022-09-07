@@ -65,10 +65,10 @@ services:
       - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - GROUP_ID=2
+      - CONFIG_STORAGE_TOPIC=my_connect_configs_2
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets_2
+      - STATUS_STORAGE_TOPIC=my_connect_statuses_2
       - REST_ADVERTISED_HOST_NAME=consumer
       - LD_LIBRARY_PATH=/instant_client
   oracle-db-source:

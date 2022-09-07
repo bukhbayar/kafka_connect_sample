@@ -12,7 +12,6 @@
         "transforms": "unwrap",
         "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.unwrap.drop.tombstones": "false",
-        "datatype.propagate.source.type": "__debezium.source.column.type",
         "auto.create": "true",
         "auto.evolve": "true",
         "insert.mode": "upsert",

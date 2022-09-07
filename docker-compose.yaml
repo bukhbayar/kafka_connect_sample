@@ -69,6 +69,9 @@ services:
       - CONNECT_OFFSET_STORAGE_TOPIC=my_connect_offsets
       - CONNECT_STATUS_STORAGE_TOPIC=my_connect_statuses
       - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - LD_LIBRARY_PATH=/usr/share/java/instant_client/
   oracle-db-source:
     container_name: oracle-db-source

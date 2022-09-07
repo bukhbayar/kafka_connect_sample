@@ -20,8 +20,8 @@ services:
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
   producer:
-    container_name: producer-container
-    hostname: connect-producer
+    container_name: producer
+    hostname: producer
     image: debezium/producer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
       context: docker-producer
@@ -45,8 +45,8 @@ services:
       - STATUS_STORAGE_TOPIC=my_connect_statuses
       - LD_LIBRARY_PATH=/usr/share/java/debezium-connector-oracle
   consumer:
-    container_name: consumer-container
-    hostname: connect-consumer
+    container_name: consumer
+    hostname: consumer
     image: confluent/consumer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
       context: docker-consumer

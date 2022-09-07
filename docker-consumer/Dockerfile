@@ -9,7 +9,7 @@ COPY oracle_instantclient/ojdbc8.jar /usr/share/confluent-hub-components/conflue
 
 USER root
 
-RUN yum -y update && yum -y install libaio, curl
+RUN yum -y update && yum -y install libaio curl
 
 curl "https://oss.sonatype.org/service/local/repositories/snapshots/content/io/debezium/debezium-connector-oracle/1.2.0-SNAPSHOT/debezium-connector-oracle-1.2.0-20200612.041347-34-plugin.tar.gz" | \
     tar xvfz - --directory /usr/share/java/

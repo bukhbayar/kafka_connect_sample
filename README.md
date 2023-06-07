@@ -1,92 +1,114 @@
-# Using Debezium From Oracle To Oracle & Postgresql
+# Using Debezium From Oracle To Oracle
+Start the topology as defined in <https://debezium.io/docs/tutorial/>
+#
 
-You must download the [Oracle instant client for Linux](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
-and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
-- Start the topology as defined in <https://debezium.io/docs/tutorial/>
+## Step 1: Prepare
+Download the [Oracle instant client for Linux](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
+and put it under the each directories:
+- docker-consumer/oracle_instantclient/
+- docker-producer/oracle_instantclient/
 
+
+## Step 2: Starting the services
 ```shell
-docker-compose -f docker-compose.yaml up --build -d
+./build-and-run.sh
 ```
 
-- Start Oracle sink connector for Customers table.
+## Step 3: Start source connector
+```shell
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-source-oracle.json
+```
+
+## Step 4: Start Oracle sink connector for CUSTOMER table.
 
 ```shell
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-sink-customers.json
 ```
 
-```shell
-curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/jdbc-sink-customers/config/ -d @register-oracle-sink-customers.json
-```
-
-- Start Postgres sink connector for Customers table.
+## Step 5: Login to SOURCE oracle database
 
 ```shell
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-sink-customers.json
+# remote ssh login to source database
+docker exec -it oracle-db-source /bin/bash
+
+# login to source database
+sqlplus sys/oracle as sysdba
 ```
 
-- Start Oracle source connector
+## Step 6: Starting testing by updating CUSTOMERS table in source database
+```sql
+-- check existing tables before make any changes
+SELECT FIRST_NAME FROM INVENTORY.CUSTOMERS c ;
+
+UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = 'Streaming'
+
+-- this will trigger streaming to target database
+COMMIT;
+```
+
+## Step 7: Login to TARGET oracle database
 
 ```shell
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-source-oracle.json
+# remote ssh login to target database
+docker exec -it oracle-db-target /bin/bash
+
+# login to target database
+sqlplus sys/oracle as sysdba
 ```
+
+## Step 8: Starting testing by checking CUSTOMERS table in target database
+```sql
+-- Check if databases are created in target database
+SELECT * FROM ALL_TABLES at2 WHERE OWNER = 'INVENTORY';
+
+-- See if the streaming data updated here
+SELECT FIRST_NAME FROM INVENTORY.CUSTOMERS c;
+```
+
+## Step 9: Done & stop the topology
 
 ```shell
-curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-source-oracle.json
+./build-and-down.sh
 ```
 
+## Docker Compose environments
+- Kafka
+- Zookeeper
+- Source Kafka connector Connector
+- Sink Kafka Connector
 - Connect to Source Oracle DB
-  - Host: localhost
+  - Host: oracle-db-source
   - Port: 1521
   - Service Name: XE
   - user: SYS
   - pass: oracle
 
 - Connect to Target Oracle DB
-  - Host: localhost
+  - Host: oracle-db-target
   - Port: 3042
   - Service Name: XE
   - user: SYS
   - pass: oracle
 
-- Connect to Target Postgresql DB
-  - Host: localhost
-  - Port: 5432
-  - user: postgres
-  - pass: postgres
-  - database: inventory
-
-- Make changes on Source DB, see results on kafka topic, and on the target database.
-
-```sql
---SOURCE DB
-SELECT * FROM INVENTORY.CUSTOMERS c ;
-
-UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = CASE WHEN c.FIRST_NAME = 'Anne' THEN 'Marie Anne' ELSE 'Anne' END
-WHERE c.id = 1004;
-
-UPDATE INVENTORY.CUSTOMERS c SET c.EMAIL = c.EMAIL || '.tr';
-
---TARGET DB
-
-SELECT * FROM ALL_TABLES at2 WHERE OWNER = 'INVENTORY';
-
-SELECT * FROM INVENTORY.CUSTOMERS c;
-
---TARGET DB - POSTGRESQL
-
-SELECT * FROM information_schema.tables where table_schema = 'public';
-
-SELECT * FROM public."CUSTOMERS" c;
+#
+# Dig deeper if you want
+- Update SOURCE kafka connector if you updated `update-source-oracle.json` file.
+```shell
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-source-oracle.json
 ```
 
-- See the kafka topics
+- Update SINK/TARGET kafka connector if you updated `update-oracle-sink-customers.json` file.
+```shell
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/jdbc-sink-customers/config/ -d @update-oracle-sink-customers.json
+```
 
+- See existing kafka topics via CLI
 ```shell
 docker exec -it kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
 ```
 
-- Inpsect a kafka topic
+- Inpsect an existing kafka topic via CLI
 
 ```shell
 docker-compose -f docker-compose.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
@@ -138,9 +160,3 @@ curl -i -X GET  http://localhost:8083/connectors
     #OR
     curl -i -X DELETE  http://localhost:8083/connectors/jdbc-sink-customers
     ```
-
-- Stop the topology
-
-```shell
-docker-compose -f docker-compose.yaml down
-```

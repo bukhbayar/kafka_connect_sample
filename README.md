@@ -15,15 +15,22 @@ and put it under the each directories:
 ./build-and-run.sh
 ```
 
-## Step 3: Start source connector
+## Step 3: Create SOURCE kafka connector for CUSTOMER table
 ```shell
+# Create kafka source connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-source-oracle.json
+
+# Check status if source kafka connector is created
+curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
 ```
 
-## Step 4: Start Oracle sink connector for CUSTOMER table.
-
+## Step 4: Create SINK kafka connector for CUSTOMER table.
 ```shell
+# Create sink kafka connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-sink-customers.json
+
+# Check status if sink kafka connector is created
+curl -i -X GET  http://localhost:8083/connectors/jdbc-sink-customers/status
 ```
 
 ## Step 5: Login to SOURCE oracle database
@@ -95,7 +102,11 @@ SELECT FIRST_NAME FROM INVENTORY.CUSTOMERS c;
 # Dig deeper if you want
 - Update SOURCE kafka connector if you updated `update-source-oracle.json` file.
 ```shell
+# Create source connector
 curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-source-oracle.json
+
+# check if source connector created
+curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
 ```
 
 - Update SINK/TARGET kafka connector if you updated `update-oracle-sink-customers.json` file.

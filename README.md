@@ -41,7 +41,7 @@ sqlplus sys/oracle as sysdba
 -- check existing tables before make any changes
 SELECT FIRST_NAME FROM INVENTORY.CUSTOMERS c ;
 
-UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = 'Streaming'
+UPDATE INVENTORY.CUSTOMERS c SET c.FIRST_NAME = 'Streaming';
 
 -- this will trigger streaming to target database
 COMMIT;
@@ -105,13 +105,15 @@ curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" 
 
 - See existing kafka topics via CLI
 ```shell
+# no need remote ssh to kafka container
 docker exec -it kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
 ```
 
 - Inpsect an existing kafka topic via CLI
 
 ```shell
-docker-compose -f docker-compose.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+# no need remote ssh to kafka container
+docker exec -it kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
@@ -124,39 +126,39 @@ docker-compose -f docker-compose.yaml exec kafka /kafka/bin/kafka-console-consum
 curl -i -X GET  http://localhost:8083/connectors
 ```
 
-- Manage Connectors
-  - See the connector status
+## Manage Connectors
+- See the connector status
 
-    ```shell
-    curl -s "http://localhost:8083/connectors?expand=info&expand=status"
-    ```
+```shell
+curl -s "http://localhost:8083/connectors?expand=info&expand=status"
+```
 
-    ```shell
-     curl -s "http://localhost:8083/connectors?expand=info&expand=status" | \
-       jq '. | to_entries[] | [ .value.info.type, .key, .value.status.connector.state,.value.status.tasks[].state,.value.info.config."connector.class"]|join(":|:")' | \
-       column -s : -t| sed 's/\"//g'| sort
-    ```
+```shell
+    curl -s "http://localhost:8083/connectors?expand=info&expand=status" | \
+    jq '. | to_entries[] | [ .value.info.type, .key, .value.status.connector.state,.value.status.tasks[].state,.value.info.config."connector.class"]|join(":|:")' | \
+    column -s : -t| sed 's/\"//g'| sort
+```
 
-    - Status of connector
+- Status of connector
 
-    ```shell
-    curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
-    #OR
-    curl -i -X GET  http://localhost:8083/connectors/jdbc-sink-customers/status
-    ```
+```shell
+curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
+#OR
+curl -i -X GET  http://localhost:8083/connectors/jdbc-sink-customers/status
+```
 
-  - Restart a connector
+- Restart a connector
 
-    ```shell
-    curl -i -X POST  http://localhost:8083/connectors/inventory-source-connector/restart
-    #OR
-    curl -i -X POST  http://localhost:8083/connectors/jdbc-sink-customers/restart
-    ```
+```shell
+curl -i -X POST  http://localhost:8083/connectors/inventory-source-connector/restart
+#OR
+curl -i -X POST  http://localhost:8083/connectors/jdbc-sink-customers/restart
+```
 
-  - Remove a connector
+- Remove a connector
 
-    ```shell
-    curl -i -X DELETE  http://localhost:8083/connectors/inventory-source-connector
-    #OR
-    curl -i -X DELETE  http://localhost:8083/connectors/jdbc-sink-customers
-    ```
+```shell
+curl -i -X DELETE  http://localhost:8083/connectors/inventory-source-connector
+#OR
+curl -i -X DELETE  http://localhost:8083/connectors/jdbc-sink-customers
+```

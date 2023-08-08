@@ -9,6 +9,7 @@ services:
       - 2181:2181
       - 2888:2888
       - 3888:3888
+
   kafka:
     container_name: kafka
     hostname: kafka
@@ -19,6 +20,23 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
+      - HEAP_OPTS='-Xmx2G -Xms2G'
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.0.10
+    container_name: schema-registry
+    hostname: schema-registry
+    ports:
+      - 8081:8081
+    depends_on:
+      - zookeeper
+      - kafka
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+
   producer:
     container_name: producer
     hostname: producer
@@ -48,6 +66,7 @@ services:
       - ADVERTISED_HOST_NAME=producer
       - ADVERTISED_PORT=8083
       - LD_LIBRARY_PATH=/instant_client
+
   consumer:
     container_name: consumer
     hostname: consumer
@@ -77,6 +96,7 @@ services:
       - ADVERTISED_HOST_NAME=consumer
       - ADVERTISED_PORT=18083
       - LD_LIBRARY_PATH=/instant_client
+
   oracle-db-source:
     container_name: oracle-db-source
     hostname: oracle-db-source
@@ -89,6 +109,7 @@ services:
     environment:
       - ORACLE_ALLOW_REMOTE=YES
       - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+
   oracle-db-target:
     container_name: oracle-db-target
     hostname: oracle-db-target

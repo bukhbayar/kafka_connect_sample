@@ -17,8 +17,16 @@
         "database.schema": "inventory",
         "errors.log.enable": "true",
         "snapshot.lock.timeout.ms":"5000",
-        "include.schema.changes": "true",
+        "include.schema.changes": "false",
         "snapshot.mode":"initial",
-        "decimal.handling.mode": "double"
+        "decimal.handling.mode": "double",
+        "log.mining.strategy": "online_catalog",
+        "key.converter": "io.confluent.connect.avro.AvroConverter",
+        "key.converter.schema.registry.url": "http://schema-registry:8081",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter.schema.registry.url": "http://schema-registry:8081",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false"
     }
 }

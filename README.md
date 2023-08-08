@@ -18,7 +18,7 @@ and put it under the each directories:
 ## Step 3: Create SOURCE kafka connector for CUSTOMER table
 ```shell
 # Create kafka source connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-source-oracle.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-source.json
 
 # Check status if source kafka connector is created
 curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
@@ -103,7 +103,7 @@ SELECT FIRST_NAME FROM INVENTORY.CUSTOMERS c;
 - Update SOURCE kafka connector if you updated `update-source-oracle.json` file.
 ```shell
 # Create source connector
-curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-source-oracle.json
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/inventory-source-connector/config/ -d @update-oracle-source.json
 
 # check if source connector created
 curl -i -X GET  http://localhost:8083/connectors/inventory-source-connector/status
@@ -124,11 +124,15 @@ docker exec -it kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 -
 
 ```shell
 # no need remote ssh to kafka container
-docker exec -it kafka /kafka/bin/kafka-console-consumer.sh \
+docker exec -it consumer /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
+    --topic oracle-db-source.INVENTORY.CUSTOMERS \
     --property print.key=true \
-    --topic oracle-db-source.INVENTORY.CUSTOMERS
+    --property schema.registry.url=http://registry:8081 \
+    --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+    --property print.key=true \
+    --property key.separator="-"
 ```
 
 - See the connectors

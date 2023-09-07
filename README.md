@@ -177,3 +177,12 @@ curl -i -X DELETE  http://localhost:8083/connectors/inventory-source-connector
 #OR
 curl -i -X DELETE  http://localhost:8083/connectors/jdbc-sink-customers
 ```
+
+
+# DockerHub
+```shell
+# For example, pushing producer image into docker repository (public)
+cd docker-producer
+docker build --build-arg DEBEZIUM_VERSION=1.9.5.Final -t <repositoryName>/<producer>:v1 .
+docker push <repositoryName>/<producer>:v1 .
+```

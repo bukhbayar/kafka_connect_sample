@@ -14,6 +14,12 @@ RUN mkdir $KAFKA_CONNECT_JDBC_DIR && cd $KAFKA_CONNECT_JDBC_DIR &&\
 RUN mkdir /kafka/connect/multiple-field-timestamp-converter/
 COPY multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar /kafka/connect/multiple-field-timestamp-converter/multiple-field-timestamp-converter-1.0.0-jar-with-dependencies.jar
 
+RUN mkdir /kafka/connect/debezium-scripting/
+COPY debezium-scripting-1.9.5.Final.jar /kafka/connect/debezium-scripting/debezium-scripting-1.9.5.Final.jar
+
+RUN mkdir /kafka/connect/groovy-4.0.14
+COPY groovy-4.0.14/* /kafka/connect/groovy-4.0.14
+
 USER root
 RUN microdnf -y install libaio && microdnf clean all
 

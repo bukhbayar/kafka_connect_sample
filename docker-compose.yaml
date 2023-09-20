@@ -42,7 +42,7 @@ services:
     hostname: producer
     image: debezium/producer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
-      context: docker-producer
+      context: debezium-connect
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
@@ -54,7 +54,7 @@ services:
       - oracle-db-source
       - oracle-db-target
     volumes:
-      - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
+      - ${PROJECT_PATH}/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
@@ -70,9 +70,9 @@ services:
   consumer:
     container_name: consumer
     hostname: consumer
-    image: confluent/consumer-with-oracle-jdbc:${DEBEZIUM_VERSION}
+    image: debezium/consumer-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
-      context: docker-consumer
+      context: debezium-connect
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
@@ -84,7 +84,7 @@ services:
       - oracle-db-source
       - oracle-db-target
     volumes:
-      - ${PROJECT_PATH}/common/oracle_instantclient/ojdbc8.jar /kafka/libs
+      - ${PROJECT_PATH}/oracle_instantclient/ojdbc8.jar /kafka/libs
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=2

@@ -5,10 +5,8 @@ Start the topology as defined in <https://debezium.io/docs/tutorial/>
 
 ## Step 1: Prepare
 Download the [Oracle instant client for Linux](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
-and put it under the each directories:
-- docker-consumer/oracle_instantclient/
-- docker-producer/oracle_instantclient/
-
+and put it under the directory below:
+- debezium-connect/common/oracle_instantclient/
 
 ## Step 2: Starting the services
 ```shell
